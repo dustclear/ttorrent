@@ -14,6 +14,12 @@
 
 package com.turn.ttorrent.common;
 
+import org.mozilla.universalchardet.UniversalDetector;
+
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 public class Utils {
 
     private final static char[] HEX_SYMBOLS = "0123456789ABCDEF".toCharArray();
@@ -38,4 +44,47 @@ public class Utils {
         return new String(hexChars);
     }
 
+    public static String guessEncoding(byte[] bytes) {
+        String DEFAULT_ENCODING = "UTF-8";
+        UniversalDetector detector = new UniversalDetector(null);
+        detector.handleData(bytes, 0, bytes.length);
+        detector.dataEnd();
+        String encoding = detector.getDetectedCharset();
+        detector.reset();
+        if (encoding == null) {
+            return simpleCode(bytes);
+        }
+        return encoding;
+    }
+
+    /**
+     * 使用简单BOM方法判断编码
+     * @param bytes
+     * @return
+     */
+    private static String simpleCode(byte[] bytes) {
+        String charset = "GB18030";
+        byte[] first3Bytes = new byte[3];
+        try {
+            BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(bytes));
+            int read = bis.read(first3Bytes, 0, 3);
+            if (read == -1) {
+                return charset;
+            }
+            if (first3Bytes[0] == (byte) 0xFF && first3Bytes[1] == (byte) 0xFE) {
+                charset = "UTF-16LE";
+            } else if (first3Bytes[0] == (byte) 0xFE
+                    && first3Bytes[1] == (byte) 0xFF) {
+                charset = "UTF-16BE";
+            } else if (first3Bytes[0] == (byte) 0xEF
+                    && first3Bytes[1] == (byte) 0xBB
+                    && first3Bytes[2] == (byte) 0xBF) {
+                charset = "UTF-8";
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return charset;
+    }
 }
+

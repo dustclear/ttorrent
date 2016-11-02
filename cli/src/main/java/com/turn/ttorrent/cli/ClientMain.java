@@ -164,7 +164,7 @@ public class ClientMain {
 			Runtime.getRuntime().addShutdownHook(
 				new Thread(new Client.ClientShutdown(c, null)));
 
-			c.share(seedTimeValue);
+			c.downloadAndShare(seedTimeValue);
 			if (Client.ClientState.ERROR.equals(c.getState())) {
 				System.exit(1);
 			}

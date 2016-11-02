@@ -17,7 +17,9 @@ public class RequestStrategyImplSequential implements RequestStrategy {
 	public Piece choosePiece(SortedSet<Piece> rarest, BitSet interesting, Piece[] pieces) {
 
 		for (Piece p : pieces) {
-			if (interesting.get(p.getIndex())) return p;
+			if (interesting.get(p.getIndex())) {
+                return p;
+			}
 		}
 		return null;
 	}

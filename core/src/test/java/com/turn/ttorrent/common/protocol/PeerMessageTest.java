@@ -1,6 +1,4 @@
-package com.turn.ttorrent.common;
-
-import com.turn.ttorrent.common.protocol.PeerMessage;
+package com.turn.ttorrent.common.protocol;
 
 import org.testng.annotations.Test;
 
@@ -8,8 +6,6 @@ import java.nio.ByteBuffer;
 import java.util.BitSet;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertEqualsNoOrder;
-import static org.testng.Assert.assertTrue;
 
 
 public class PeerMessageTest {

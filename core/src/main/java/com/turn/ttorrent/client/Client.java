@@ -63,7 +63,7 @@ import org.slf4j.LoggerFactory;
  * meta-info source (either a file or a byte array, see
  * com.turn.ttorrent.SharedTorrent for how to create a SharedTorrent object).
  * Then, instantiate your Client object with this SharedTorrent and call one of
- * {@link #download} to simply download the torrent, or {@link #share} to
+ * {@link #downloadAndShare} to simply download the torrent, or {@link #downloadAndShare} to
  * download and continue seeding for the given amount of time after the
  * download completes.
  * </p>
@@ -86,6 +86,9 @@ public class Client extends Observable implements Runnable,
 
 	private static final int RATE_COMPUTATION_ITERATIONS = 2;
 	private static final int MAX_DOWNLOADERS_UNCHOKE = 4;
+
+	private static final int DEFAULT_SEED_TIME_IN_SECONDS = 30*60;
+
 
 	public enum ClientState {
 		WAITING,
@@ -223,27 +226,34 @@ public class Client extends Observable implements Runnable,
 	}
 
 	/**
-	 * Download the torrent without seeding after completion.
+	 * Download the torrent with default seeding time.
 	 */
 	public void download() {
-		this.share(0);
+		downloadAndShare(DEFAULT_SEED_TIME_IN_SECONDS);
+	}
+
+	/**
+	 * Download the torrent without seeding after completion.
+	 */
+	public void downloadWithoutShare() {
+		downloadAndShare(0);
 	}
 
 	/**
 	 * Download and share this client's torrent until interrupted.
 	 */
-	public void share() {
-		this.share(-1);
+	public void downloadAndShareUntilInterrupted() {
+		downloadAndShare(-1);
 	}
 
 	/**
 	 * Download and share this client's torrent.
 	 *
-	 * @param seed Seed time in seconds after the download is complete. Pass
+	 * @param seedTimeInSeconds Seed time in seconds after the download is complete. Pass
 	 * <code>0</code> to immediately stop after downloading.
 	 */
-	public synchronized void share(int seed) {
-		this.seed = seed;
+	public synchronized void downloadAndShare(int seedTimeInSeconds) {
+		this.seed = seedTimeInSeconds;
 		this.stop = false;
 
 		if (this.thread == null || !this.thread.isAlive()) {
@@ -926,7 +936,7 @@ public class Client extends Observable implements Runnable,
 	 *
 	 * <p>
 	 * When the download is complete, the client switches to seeding mode for
-	 * as long as requested in the <code>share()</code> call, if seeding was
+	 * as long as requested in the <code>download()</code> call, if seeding was
 	 * requested. If not, the {@link ClientShutdown} will execute
 	 * immediately to stop the client's main loop.
 	 * </p>

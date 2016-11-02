@@ -15,6 +15,8 @@
  */
 package com.turn.ttorrent.bcodec;
 
+import com.turn.ttorrent.common.Utils;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +79,7 @@ public class BEValue {
 	 * @throws InvalidBEncodingException If the value is not a byte[].
 	 */
 	public String getString() throws InvalidBEncodingException {
-		return this.getString("UTF-8");
+		return this.getString(Utils.guessEncoding(getBytes()));
 	}
 
 	/**
